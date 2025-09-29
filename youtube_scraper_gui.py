@@ -17,8 +17,40 @@ from pathlib import Path
 from typing import List, Dict, Optional, Tuple
 from datetime import datetime, timedelta
 import queue
+import subprocess
+import pkgutil
 
-# External dependencies
+# External dependencies (auto-install when running from source)
+def ensure_runtime_deps():
+    """Ensure pip deps are present when running from source.
+    Skips auto-install when running as a frozen EXE.
+    """
+    if getattr(sys, 'frozen', False):
+        return  # PyInstaller EXE – deps must be bundled at build time
+    required = [
+        'yt_dlp',
+        'whisper',
+        'pydub',
+        'torch',
+    ]
+    missing = [m for m in required if pkgutil.find_loader(m) is None]
+    if missing:
+        try:
+            # Try using requirements.txt for completeness
+            req_path = str(Path(__file__).parent / 'requirements.txt')
+            cmd = [sys.executable, '-m', 'pip', 'install', '-r', req_path]
+            subprocess.check_call(cmd)
+        except Exception:
+            # Fallback: install individual packages
+            for m in missing:
+                pkg_name = 'pyaudio' if m in ('pyaudioop',) else m
+                try:
+                    subprocess.check_call([sys.executable, '-m', 'pip', 'install', pkg_name])
+                except Exception:
+                    pass
+
+ensure_runtime_deps()
+
 try:
     import yt_dlp
     import whisper
