@@ -1,0 +1,13 @@
+﻿__pycache__/
+*.pyc
+.venv/
+venv/
+.idea/
+.vscode/
+.DS_Store
+YouTube_Transcripts/
+user_preferences.json
+*.wav
+*.mp3
+*.m4a
+*.webm
